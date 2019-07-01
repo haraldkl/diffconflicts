@@ -101,6 +101,10 @@ function! s:showHistory()
 
     " Put cursor in back in BASE.
     wincmd h
+
+    if exists("g:loaded_taboo")
+        TabooRename History
+    endif
 endfunction
 
 function! s:checkThenShowHistory()

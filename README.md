@@ -92,6 +92,10 @@ splitting them apart.
 
     This tab is not opened by default so that Vim starts more quickly.
 
+    If you have [Taboo](https://github.com/gcmt/taboo.vim) installed,
+    the tab opened by ShowHistory will be renamed to "History", and will
+    not depend on the active buffer in that tab.
+
 
 ## Mercurial
 
