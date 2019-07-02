@@ -92,6 +92,9 @@ splitting them apart.
 
     This tab is not opened by default so that Vim starts more quickly.
 
+    If you want to shorten the names for the buffers in the history view,
+    set g:diffconflicts_shorten to 1.
+
 
 ## Mercurial
 

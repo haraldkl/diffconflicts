@@ -32,4 +32,7 @@ Commands:
 
 						*DiffConflicts-settings*
         Use g:diffconflicts_vcs to indicate which version control system produced
-        the conflict file (Git or Mercurial).
+        the conflict file ('git' or 'hg').
+
+        Set g:diffconflicts_shorten to 1 to shorten the buffernames in the
+        history view tab.

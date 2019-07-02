@@ -12,11 +12,45 @@ set cpo&vim
 
 " CONFIGURATION
 if !exists("g:diffconflicts_vcs")
-    " Default to git
+    " Which VCS produced the conflicts?
+    " Possible values: git, hg
+    " Default to git.
     let g:diffconflicts_vcs = "git"
 endif
 
+if !exists("g:diffconflicts_shorten")
+    " Should buffernames in the history view tab be shortened?
+    " Default is false
+    let g:diffconflicts_shorten = 0
+endif
+
 let g:loaded_diffconflicts = 1
+
+" VCS specific settings:
+let s:vcs_specifics = { }
+let s:vcs_specifics.git = {
+    \ 'filecheck': 'v:val =~# "BASE" || v:val =~# "LOCAL" || v:val =~# "REMOTE"',
+    \ 'id' : { 'local': 'LOCAL',
+    \          'base': 'BASE',
+    \          'remote': 'REMOTE',
+    \ },
+    \ 'short' : { 'local': 'LOCAL',
+    \             'base': 'BASE',
+    \             'remote': 'REMOTE',
+    \ },
+\}
+let s:vcs_specifics.hg = {
+    \ 'filecheck': 'v:val =~# "\\~base\\." || v:val =~# "\\~local\\." || v:val =~# "\\~other\\."',
+    \ 'id' : { 'local': '~local.',
+    \          'base': '~base.',
+    \          'remote': '~other.',
+    \ },
+    \ 'short' : { 'local': 'LOCAL',
+    \             'base': 'BASE',
+    \             'remote': 'OTHER',
+    \ },
+\}
+
 function! s:hasConflicts()
     try
         silent execute "%s/^<<<<<<< //gn"
@@ -70,31 +104,25 @@ function! s:showHistory()
     wincmd h
 
     " Populate each window.
-    if g:diffconflicts_vcs == "hg"
-        buffer ~local.
-        file LOCAL
-    else
-        buffer LOCAL
+    execute 'buffer' s:vcs_specifics[g:diffconflicts_vcs].id.local
+    if g:diffconflicts_shorten
+        execute 'file' s:vcs_specifics[g:diffconflicts_vcs].short.local
     endif
     setlocal nomodifiable readonly
     diffthis
 
     wincmd l
-    if g:diffconflicts_vcs == "hg"
-        buffer ~base.
-        file BASE
-    else
-        buffer BASE
+    execute 'buffer' s:vcs_specifics[g:diffconflicts_vcs].id.base
+    if g:diffconflicts_shorten
+        execute 'file' s:vcs_specifics[g:diffconflicts_vcs].short.base
     endif
     setlocal nomodifiable readonly
     diffthis
 
     wincmd l
-    if g:diffconflicts_vcs == "hg"
-        buffer ~other.
-        file OTHER
-    else
-        buffer REMOTE
+    execute 'buffer' s:vcs_specifics[g:diffconflicts_vcs].id.remote
+    if g:diffconflicts_shorten
+        execute 'file' s:vcs_specifics[g:diffconflicts_vcs].short.remote
     endif
     setlocal nomodifiable readonly
     diffthis
@@ -104,11 +132,6 @@ function! s:showHistory()
 endfunction
 
 function! s:checkThenShowHistory()
-    if g:diffconflicts_vcs == "hg"
-        let l:filecheck = 'v:val =~# "\\~base\\." || v:val =~# "\\~local\\." || v:val =~# "\\~other\\."'
-    else
-        let l:filecheck = 'v:val =~# "BASE" || v:val =~# "LOCAL" || v:val =~# "REMOTE"'
-    endif
     let l:xs =
         \ filter(
         \   map(
@@ -118,7 +141,7 @@ function! s:checkThenShowHistory()
         \     ),
         \     'bufname(v:val)'
         \   ),
-        \   l:filecheck
+        \   s:vcs_specifics[g:diffconflicts_vcs].filecheck
         \ )
 
     if (len(l:xs) < 3)
