@@ -1,12 +1,12 @@
 # vim-diffconflicts
 
-A better Vimdiff Git mergetool
+A better Vimdiff mergetool.
 
 tl;dr:
 
 * Call `:DiffConflicts` to convert a file containing conflict markers into
   a two-way diff.
-* Install as a Git mergetool to do that automatically. (See
+* Install as a Git or Mercurial mergetool to do that automatically. (See
   [Installation](#installation) below.)
 
 ## Why?
@@ -14,6 +14,13 @@ tl;dr:
 Watch a demonstration version of this README on YouTube:
 
 [![diffconflicts Video Demonstration](https://img.youtube.com/vi/Pxgl3Wtf78Y/0.jpg)](https://www.youtube.com/watch?v=Pxgl3Wtf78Y)
+
+Contents:
+
+* [Three-Way Diffs are Hard](#three-way-diffs-are-hard)
+* [Editing-Conflict-Markers-is-Hard](#editing-conflict-markers-is-hard)
+* [Two-Way Diffs are Eas(ier)](#two-way-diffs-are-easier)
+* [Conflict-Markers **are** a Two-Way Diff](#conflict-markers-are-a-two-way-diff)
 
 ### Three-Way Diffs are Hard
 
@@ -52,16 +59,16 @@ Vimdiff is well suited to two-way diffs:
 
 ![](./_utils/vim-diffconflicts.png)
 
-### Conflict-Markers are a Two-Way Diff
+### Conflict-Markers **are** a Two-Way Diff
 
 Git does an admirable job of automatically resolving conflicts. We want to
 retain all the work and resolve only the things that Git could not. That work
-is reflected in the files containing conflict markers, but it is not reflected
-in a two-way diff between LOCAL and REMOTE.
+_**is**_ reflected in the files containing conflict markers, but it _**is
+not**_ reflected in a two-way diff between LOCAL and REMOTE.
 
-Rather than editing the conflict markers directly, it is better to perform a
-two-way diff on just the "left" and "right" sides of the conflict markers by
-splitting them apart.
+Rather than editing the conflict markers directly, it is better to perform
+a two-way diff on _**only**_ the "left" and "right" sides of the conflict
+markers by splitting them apart.
 
 ## Installation
 
@@ -91,3 +98,22 @@ splitting them apart.
     changes.
 
     This tab is not opened by default so that Vim starts more quickly.
+
+
+## Mercurial
+
+Configure Mercurial to use diffconflicts as a mergetool by adding:
+
+    [merge-tools]
+    diffconflicts.executable=vim
+    diffconflicts.args=-c 'let g:diffconflicts_vcs="hg"' -c DiffConflicts "$output" $base $local $other
+    diffconflicts.premerge=keep
+    diffconflicts.check=conflicts
+    diffconflicts.priority=99
+
+to your `.hgrc` file.
+Or, if you prefer to always open both the diff view and the history view use
+
+    diffconflicts.args=-c 'let g:diffconflicts_vcs="hg"' -c DiffConflictsWithHistory "$output" $base $local $other
+
+as the args setting to call `DiffConflictsWithHistory`.
